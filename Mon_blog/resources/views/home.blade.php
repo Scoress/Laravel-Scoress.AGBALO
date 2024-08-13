@@ -39,9 +39,9 @@
         </div>
 
         <div class=" dark:bg-gray-800 flex justify-center items-center">
-          <form action="/search" class="max-w-[480px] w-full px-4">
+          <form action="{{ route('posts.search')}}" method="GET" class="max-w-[480px] w-full px-4">
               <div class="relative">
-                  <input type="text" name="q" class="w-full border h-12 shadow p-4 rounded-full dark:text-gray-800 dark:border-gray-700 dark:bg-gray-200" placeholder="search">
+                  <input type="text" name="search" value="{{ request('search')}}" class="w-full border h-12 shadow p-4 rounded-full dark:text-gray-800 dark:border-gray-700 dark:bg-gray-200" placeholder="Rechercher des posts ...">
                   <button type="submit">
                       <svg class="text-teal-400 h-5 w-5 absolute top-3.5 right-3 fill-current dark:text-teal-300"
                           xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
@@ -56,6 +56,7 @@
           </form>
       </div>
 
+  
         <div class="container mx-auto p-6 ">
             <h1 class="text-3xl font-bold mb-6">Liste des Articles</h1>
             <a href="{{ route('posts.create') }}"
@@ -78,9 +79,9 @@
                                     class="text-blue-500 hover:underline">{{ $post->title }}</a>
                             </h2>
                             <p class="text-gray-500 text-sm mb-2">Posté {{ $post->created_at->diffForHumans() }}</p>
-                            <div class="flex items-center gap-2">
-                                <a href="{{ route('posts.edit', $post->id) }}"
-                                    class="text-blue-500 hover:underline">Éditer</a>
+                            <div class="flex justify-between gap-2">
+                                <a href="{{ route('posts.edit', $post->id) }}" class="bg-blue-600 text-white py-2 px-6 rounded-lg shadow hover:bg-blue-700 transition duration-300">Éditer</a>
+
                                 <form action="{{ route('posts.destroy', $post->id) }}" method="POST"
                                     style="display:inline;">
                                     @csrf
@@ -92,7 +93,11 @@
                     </div>
                 @endforeach
             </div>
+            <div class=" flex justify-center mt-6">
+                {{ $posts->links() }}
+            </div>
         </div>
+        
     </div>
 </body>
 

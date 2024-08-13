@@ -22,3 +22,5 @@ Route::delete('/logout', [RegisterController::class, 'logout'])->name('logout');
 Route::middleware(['auth'])->group(function () {
     Route::resource('posts', PostController::class);
 });
+Route::get('/', [PostController::class, 'index'])->name('posts.index');
+Route::get('/posts/search', [PostController::class, 'search'])->name('posts.search');

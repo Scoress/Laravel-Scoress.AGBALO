@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use App\Models\User;
@@ -9,9 +10,21 @@ use Illuminate\Support\Facades\Validator;
 
 class PostController extends Controller
 {
-    public function index()
+    use AuthorizesRequests;
+
+    public function index(Request $request)
     {
-        $posts = Post::orderBy('created_at', 'desc')->get();
+        $query = Post::query();
+
+
+        // Vérifiez si une recherche est effectuée
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->where('title', 'like', "%{$search}%")
+                ->orWhere('body', 'like', "%{$search}%");
+        }
+
+        $posts = $query->orderBy('created_at', 'desc')->paginate(15);
         return view('home', compact('posts'));
     }
 
@@ -54,11 +67,14 @@ class PostController extends Controller
 
     public function edit(Post $post)
     {
+        // $this->authorize('update', $post);
         return view('posts.edit', compact('post'));
     }
 
     public function update(Request $request, Post $post)
     {
+        // $this->authorize('update', $post);
+       
         $validator = Validator([
             'title' => 'required|max:100',
             'body' => 'required|max:255',
@@ -90,7 +106,27 @@ class PostController extends Controller
 
     public function destroy(Post $post)
     {
+        // $this->authorize('delete', $post);
         $post->delete();
         return redirect()->route('posts.index')->with('success', 'Article supprimé avec succès.');
+    }
+
+    public function search(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'search' => 'nullable|string|max:50',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        $search = $request->input('search');
+        $posts = Post::where('title', 'like', "%{$search}%")
+            ->orWhere('body', 'like', "%{$search}%")
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
+
+        return view('home', compact('posts'))->with('search', $search);
     }
 }
